@@ -2,17 +2,27 @@
 <html>
 <head>
   <title>Blockchain Ledger</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-  <h2>Blockchain Academic Records</h2>
-  {% for block in chain %}
-    <p><b>Block {{ block.index }}</b><br>
-    Data: {{ block.data }}<br>
-    Hash: {{ block.hash }}<br>
-    Previous Hash: {{ block.previous_hash }}<br></p>
-    <hr>
-  {% endfor %}
-  <a href="/">Add New</a> |
-  <a href="/verify">Verify Record</a>
+<body class="bg-light">
+  <div class="container mt-5">
+    <h2 class="text-center text-primary mb-4">Blockchain Academic Records</h2>
+
+    {% for block in chain %}
+      <div class="card mb-3 shadow-sm rounded-4">
+        <div class="card-body">
+          <h5 class="card-title">Block {{ block.index }}</h5>
+          <p><strong>Data (Record Hash):</strong> {{ block.data }}</p>
+          <p><strong>Hash:</strong> {{ block.hash }}</p>
+          <p><strong>Previous Hash:</strong> {{ block.previous_hash }}</p>
+        </div>
+      </div>
+    {% endfor %}
+
+    <div class="text-center mt-4">
+      <a href="/" class="btn btn-outline-success">Add New Record</a>
+      <a href="/verify" class="btn btn-outline-secondary">Verify Record</a>
+    </div>
+  </div>
 </body>
 </html>

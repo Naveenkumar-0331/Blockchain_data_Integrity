@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Blockchain Ledger</title>
+</head>
+<body>
+  <h2>Blockchain Academic Records</h2>
+  {% for block in chain %}
+    <p><b>Block {{ block.index }}</b><br>
+    Data: {{ block.data }}<br>
+    Hash: {{ block.hash }}<br>
+    Previous Hash: {{ block.previous_hash }}<br></p>
+    <hr>
+  {% endfor %}
+  <a href="/">Add New</a> |
+  <a href="/verify">Verify Record</a>
+</body>
+</html>

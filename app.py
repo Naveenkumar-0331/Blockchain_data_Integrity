@@ -1,10 +1,15 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template,jsonify, request, redirect, url_for
 from blockchain import Blockchain, hash_student_record
+import json
 
 app = Flask(__name__)
 edu_chain = Blockchain()
 edu_chain.load_chain()
 
+def load_blockchain():
+    with open("blockchain_data.json","r") as f:
+        return json.load(f)
+    
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -32,6 +37,28 @@ def verify_record():
         verified = edu_chain.verify_student_record(name, roll, gpa)
         return render_template('verify.html', verified=verified)
     return render_template('verify.html', verified=None)
+
+@app.route('/visualize')
+def visualize_blockchain():
+    chain = load_blockchain()
+
+    # Verify integrity of each block (except Genesis)
+    for i in range(len(chain)):
+        if i == 0:
+            chain[i]['valid'] = True  # Genesis block always valid
+        else:
+            # Compare previous block's stored hash with current block's prev_hash
+            prev_hash_stored = chain[i - 1].get('hash')
+            current_prev_hash = chain[i].get('prev_hash')
+
+            if current_prev_hash == prev_hash_stored:
+                chain[i]['valid'] = True
+            else:
+                chain[i]['valid'] = False
+
+    return render_template('visualize.html', chain=chain)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

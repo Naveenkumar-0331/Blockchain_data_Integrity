@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Verify Certificate</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: #dff9fb; display:flex; justify-content:center; align-items:center; min-height:100vh; }
+    .card { padding:30px; border-radius:15px; box-shadow:0 6px 16px rgba(0,0,0,0.1); width:500px; text-align:center; }
+    .hash-box { font-family:monospace; background:#f4f6f7; padding:10px; border-radius:10px; word-wrap:break-word; }
+    .valid { background:#d4edda; color:#155724; border:2px solid #28a745; padding:10px; border-radius:10px; }
+    .invalid { background:#f8d7da; color:#721c24; border:2px solid #dc3545; padding:10px; border-radius:10px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h3>🔍 Verify Certificate</h3>
+    <p class="text-muted">Re-upload a certificate to check its authenticity.</p>
+
+    <form action="/verify_certificate" method="POST" enctype="multipart/form-data">
+      <input type="file" name="file" class="form-control mb-3" accept=".pdf,.jpg,.jpeg,.png" required>
+      <button type="submit" class="btn btn-success w-100">Verify Certificate</button>
+    </form>
+
+    {% if checked %}
+      <hr>
+      <h5>File Hash:</h5>
+      <div class="hash-box">{{ uploaded_hash }}</div>
+
+      {% if found %}
+        <div class="valid mt-3">✅ Authentic Certificate — Match Found in Blockchain</div>
+      {% else %}
+        <div class="invalid mt-3">❌ Fake or Unregistered Certificate — No Match Found</div>
+      {% endif %}
+    {% endif %}
+
+    <a href="/" class="btn btn-dark mt-3">🏠 Back to Home</a>
+  </div>
+</body>
+</html>

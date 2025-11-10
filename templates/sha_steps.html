@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🔐 SHA-256 Step-by-Step Visualization</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <style>
+    body { background:#f4f6fb; padding:30px; font-family:"Segoe UI"; }
+    .step { display:none; background:white; border-radius:12px; padding:20px; margin:20px 0; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+    .active { display:block; animation:fadeIn 1s ease; }
+    .code-box { background:#f0f3f5; border-left:5px solid #007bff; padding:10px; font-family:monospace; border-radius:6px; }
+    #finalHash { background:#eafaf1; color:#155724; font-weight:bold; padding:10px; border-radius:10px; font-family:monospace; }
+    @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 class="text-center mb-4">🔢 SHA-256 Hashing Detailed Visualization</h2>
+
+    <div class="card p-4">
+      <textarea id="inputData" class="form-control mb-3" rows="2" placeholder="Enter text (example: abc)"></textarea>
+      <button id="startBtn" class="btn btn-primary w-100">Start Visualization</button>
+    </div>
+
+    <div id="steps">
+      <div id="step1" class="step">
+        <h5>Step 1 — Preprocessing</h5>
+        <p>The message is padded to make its length a multiple of 512 bits and appending original length (in bits).</p>
+        <div class="code-box" id="padOutput"></div>
+      </div>
+
+      <div id="step2" class="step">
+        <h5>Step 2 — Parsing into 512-bit Blocks</h5>
+        <div class="code-box" id="blocksOutput"></div>
+      </div>
+
+      <div id="step3" class="step">
+        <h5>Step 3 — Initialize Hash Values (H₀–H₇)</h5>
+        <div class="code-box" id="initHash"></div>
+      </div>
+
+      <div id="step4" class="step">
+        <h5>Step 4 — Constants K[0..63]</h5>
+        <div class="code-box" id="constsOutput"></div>
+      </div>
+
+      <div id="step5" class="step">
+        <h5>Step 5 — Message Schedule (W[0..63])</h5>
+        <div class="code-box" id="msgSchedule"></div>
+      </div>
+
+      <div id="step6" class="step">
+        <h5>Step 6 — Initialize Working Variables</h5>
+        <div class="code-box" id="varsOutput"></div>
+      </div>
+
+      <div id="step7" class="step">
+        <h5>Step 7 — Compression (64 Rounds)</h5>
+        <div class="code-box" id="compressLoop"></div>
+      </div>
+
+      <div id="step8" class="step">
+        <h5>Step 8 — Compute Intermediate Hash</h5>
+        <div class="code-box" id="intermediateHash"></div>
+      </div>
+
+      <div id="step9" class="step">
+        <h5>Step 9 — Final Digest</h5>
+        <div id="finalHash"></div>
+      </div>
+    </div>
+
+    <a href="/" class="btn btn-dark mt-4">🏠 Back to Home</a>
+  </div>
+
+  <script>
+    const startBtn = document.getElementById('startBtn');
+
+    startBtn.addEventListener('click', async () => {
+      const input = document.getElementById('inputData').value.trim();
+      if (!input) return alert("Please enter some input!");
+
+      const steps = document.querySelectorAll('.step');
+      steps.forEach(s => s.classList.remove('active'));
+
+      const example = input || "abc";
+      const binaryLen = example.length * 8;
+
+      // Step 1
+      document.getElementById('padOutput').innerText =
+        `Input: "${example}" → ${binaryLen} bits.\n` +
+        `After padding → 512-bit block with 0x80 and length (0x${binaryLen.toString(16)}) added.`;
+
+      await showStep(1);
+
+      // Step 2
+      document.getElementById('blocksOutput').innerText =
+        `512-bit block split into 16 words (W[0]..W[15]) of 32 bits each.\nExample W[0] = 0x${CryptoJS.enc.Hex.stringify(CryptoJS.enc.Utf8.parse(example)).slice(0,8)}...`;
+      await showStep(2);
+
+      // Step 3
+      document.getElementById('initHash').innerText =
+        "H₀–H₇ = [6a09e667, bb67ae85, 3c6ef372, a54ff53a, 510e527f, 9b05688c, 1f83d9ab, 5be0cd19]";
+      await showStep(3);
+
+      // Step 4
+      document.getElementById('constsOutput').innerText =
+        "K[0..3] = [428a2f98, 71374491, b5c0fbcf, e9b5dba5, ...]";
+      await showStep(4);
+
+      // Step 5
+      document.getElementById('msgSchedule').innerText =
+        "W[16..63] derived using bitwise rotations:\nσ₀, σ₁, XOR and shifts.";
+      await showStep(5);
+
+      // Step 6
+      document.getElementById('varsOutput').innerText =
+        "Working vars (a–h) initialized from H₀–H₇.\nEach round updates them based on W[t] and K[t].";
+      await showStep(6);
+
+      // Step 7
+      document.getElementById('compressLoop').innerText =
+        "64 rounds performed using:\nΣ₀, Σ₁, Ch, Maj, and modular additions.";
+      await showStep(7);
+
+      // Step 8
+      document.getElementById('intermediateHash').innerText =
+        "After one block, updated H values:\nH₀=ba7816bf, H₁=8f01cfea, ..., H₇=f20015ad";
+      await showStep(8);
+
+      // Step 9
+      const finalHash = CryptoJS.SHA256(example).toString();
+      document.getElementById('finalHash').innerText =
+        `Final SHA-256 digest:\n${finalHash}`;
+      await showStep(9);
+    });
+
+    async function showStep(stepNum) {
+      const step = document.getElementById(`step${stepNum}`);
+      step.classList.add('active');
+      await new Promise(r => setTimeout(r, 1500)); // Wait 1.5 sec before next step
+    }
+  </script>
+</body>
+</html>
